@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: teamcity-build-agent
+  namespace: dev-tools
+spec:
+  containers:
+    - name: teamcity-build-agent
+      image: dim777/teamcity-agent-2022-03-04:EAP-linux-arm64
+      imagePullPolicy: IfNotPresent
+      env:
+        - name: SERVER_URL
+          value: "http://teamcity:18111"
+        - name: DOCKER_IN_DOCKER
+          value: start
+      securityContext:
+        privileged: true
+        runAsUser: 0
