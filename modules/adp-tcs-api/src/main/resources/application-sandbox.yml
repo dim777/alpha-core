@@ -1,0 +1,5 @@
+market:
+  data:
+    tcs:
+      url: 'https://api-invest.tinkoff.ru/openapi/sandbox'
+      token: "t.QLGTNE-nwHy4DW-aW6PsxYzGXOrhX3WU6Sw0VNuemIDaXn8PnjcmDN6pkdU_6YE7TW7Txmyb4LhNQEHkufYKgA"

@@ -1,0 +1,29 @@
+### List of connectors
+GET http://debezium-connect:8084/connectors/
+Accept: */*
+Cache-Control: no-cache
+
+### Delete connector
+DELETE http://debezium-connect:8084/connectors/inventory-connector
+
+### Create connector
+POST http://debezium-connect:8084/connectors/
+Accept: */*
+Cache-Control: no-cache
+Content-Type: application/json; charset=utf-8
+
+{
+  "name": "moex-connector",
+  "config": {
+    "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+    "database.hostname": "postgres",
+    "database.port": "5432",
+    "database.user": "postgres",
+    "database.password": "Qwe123",
+    "database.dbname": "market_data_db",
+    "database.server.name": "postgres",
+    "table.whitelist": "moex.ticks"
+  }
+}
+
+###

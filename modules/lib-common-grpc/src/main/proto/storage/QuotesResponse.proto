@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package tech.ineb.protogen;
+
+import "google/protobuf/wrappers.proto";
+import "crm/messages/Offer.proto";
+
+option java_multiple_files = true;
+
+message QuotesResponse {
+  google.protobuf.StringValue responseId = 1;
+  string url = 2;
+}

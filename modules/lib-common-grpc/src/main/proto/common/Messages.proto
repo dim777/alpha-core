@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+package ru.rzvt.protogen;
+
+import "google/protobuf/wrappers.proto";
+import "google/protobuf/struct.proto";
+option java_multiple_files = true;
+
+
+message CodeRequest {
+  string code = 1;
+}
+
+message ListInfo {
+  int64 count = 1;
+  int64 limit = 2;
+  int64 offset = 3;
+}
+
+message StringEntry {
+  string key = 1;
+  string value = 2;
+}
+
+message IdRequest {
+  string id = 1;
+}
+
+message MultipleIdRequest {
+  repeated string ids = 1;
+}
+
+message ListIdRequest {
+  repeated IdRequest ids = 1;
+}
+
+message ListCodeRequest {
+  repeated CodeRequest codes = 1;
+}

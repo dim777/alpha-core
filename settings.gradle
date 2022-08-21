@@ -1,0 +1,41 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        jcenter()
+        mavenLocal()
+        maven {
+            name "JCenter Gradle Plugins"
+            url  "https://dl.bintray.com/gradle/gradle-plugins"
+        }
+    }
+    resolutionStrategy {
+        eachPlugin {
+            if (requested.id.id == "ch.ayedo.jooqmodelator") {
+                useModule("ch.ayedo.jooqmodelator:jooqmodelator:3.9.3")
+            }
+        }
+    }
+}
+
+include 'adp-tcs-api'
+include 'adp-binance-api'
+include 'svc-message-broker'
+include 'svc-data-api'
+include 'svc-api-gw'
+include 'lib-common-tcs'
+include 'lib-common-oh-entities'
+include 'lib-common-models'
+include 'lib-common-math'
+include 'lib-common-entities'
+include 'lib-common-grpc'
+
+rootProject.name = 'alpha-core'
+rootProject.children.each { service ->
+    String fileBaseName = service.name.replaceAll("\\p{Upper}") { "-${it.toLowerCase()}" }
+    String projectDirName = "modules/$fileBaseName"
+
+    service.projectDir = new File(settingsDir, projectDirName)
+    service.buildFileName = "${fileBaseName}.gradle"
+    assert service.projectDir.isDirectory()
+    assert service.buildFile.isFile()
+}

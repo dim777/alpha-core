@@ -1,0 +1,127 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: teamcity
+  name: teamcity
+  namespace: dev-tools
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: teamcity
+  template:
+    metadata:
+      labels:
+        app: teamcity
+    spec:
+      initContainers:
+        - name: chown-tc-data-owner
+          image: busybox:1.34.1
+          command: [ "/bin/sh","-c" ]
+          args: [ "chown -R 1000:1000 /data/teamcity_server/datadir" ]
+          volumeMounts:
+            - name: tc-data-vol
+              mountPath: /data/teamcity_server/datadir
+      containers:
+        - image: dim777/teamcity-server:EAP-linux-arm64
+          imagePullPolicy: IfNotPresent
+          name: teamcity
+          env:
+            - name: TEAMCITY_SERVER_MEM_OPTS
+              value: "-Xmx2g -XX:MaxPermSize=270m -XX:ReservedCodeCacheSize=350m"
+          resources:
+            requests:
+              cpu: "0.25"
+              memory: "512M"
+            limits:
+              cpu: "0.5"
+              memory: "2304M"
+          ports:
+            - containerPort: 8111
+          volumeMounts:
+            - name: tc-data-vol
+              mountPath: /data/teamcity_server/datadir
+      volumes:
+        - name: tc-data-vol
+          persistentVolumeClaim:
+            claimName: pvc-tc
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-tc
+  namespace: dev-tools
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: oci-bv
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: teamcity:manage-agents
+rules:
+  - apiGroups: [""]
+    resources: ["namespaces"]
+    verbs: ["list", "get"]
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "create", "list", "delete"]
+  - apiGroups: ["extensions", "apps"]
+    resources: ["deployments"]
+    verbs: ["list", "get"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: teamcity:manage-agents
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: teamcity:manage-agents
+subjects:
+  - kind: User
+    name: teamcity
+  - kind: ServiceAccount
+    name: teamcity
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: teamcity
+  namespace: dev-tools
+spec:
+  ports:
+    - port: 18111
+      targetPort: 8111
+  selector:
+    app: teamcity
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: teamcity-ingress
+  namespace: dev-tools
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    kubernetes.io/ingress.class: "nginx"
+spec:
+  tls:
+    - hosts:
+        - teamcity.i-neb.net
+      secretName: teamcity-tls
+  rules:
+    - host: teamcity.i-neb.net
+      http:
+        paths:
+          - pathType: Prefix
+            path: /
+            backend:
+              service:
+                name: teamcity
+                port:
+                  number: 18111

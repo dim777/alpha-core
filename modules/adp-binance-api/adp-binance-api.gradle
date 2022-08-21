@@ -1,0 +1,102 @@
+buildscript {
+    ext {
+        gradleUploadPlugin = '2.3.1'
+    }
+    repositories {
+        mavenCentral()
+        maven { url "https://plugins.gradle.org/m2/" }
+    }
+}
+
+plugins {
+    id 'org.springframework.boot' version "$bootVersion"
+    id 'io.spring.dependency-management' version "$dmVersion"
+    id 'com.google.cloud.tools.jib' version "$jibVersion"
+    id 'java'
+    id "org.openapi.generator" version "$openApi"
+}
+
+dependencies {
+    implementation project(':lib-common-models')
+    implementation 'org.springframework.boot:spring-boot-starter'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
+    implementation libraries.swagger2
+    implementation libraries.swagger_ui
+    implementation libraries.gson
+    implementation libraries.guava
+    implementation libraries.javax_annotation
+    implementation libraries.okhttp3_client
+    implementation libraries.okhttp3_logging
+    implementation libraries.gson_fire
+    implementation libraries.s3
+    implementation libraries.gson
+    implementation libraries.mapstruct_core
+    implementation libraries.http_client
+    compileOnly libraries.lombok
+    annotationProcessor libraries.lombok
+
+    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
+    annotationProcessor libraries.mapstruct_processor
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testCompileOnly libraries.lombok
+    testAnnotationProcessor libraries.lombok
+}
+
+test {
+    useJUnitPlatform()
+}
+
+tasks.build.dependsOn(tasks.openApiGenerate)
+
+openApiValidate {
+    inputSpec = "$rootDir/modules/adp-binance-api/src/main/resources/binance/1.0.1-customized/spot_api.yaml"
+}
+
+openApiGenerate {
+    generatorName = "java"
+    inputSpec = "$rootDir/modules/adp-binance-api/src/main/resources/binance/1.0.1-customized/spot_api.yaml"
+    outputDir = "$buildDir/generated"
+    apiPackage = "tech.ineb.alpha.adp.binance.client.api"
+    modelPackage = "tech.ineb.alpha.adp.binance.model"
+    invokerPackage = "tech.ineb.alpha.adp.binance.invoker"
+    configOptions = [dateLibrary: "java8"]
+    //fixme: generate only models
+    globalProperties = [
+            models: ''
+    ]
+}
+
+sourceSets {
+    main {
+        java.srcDirs += ["${buildDir}/generated/src/main/java/"]
+    }
+}
+
+compileJava {
+    dependsOn tasks.openApiGenerate
+}
+
+//fixme: below
+jib {
+    allowInsecureRegistries = true
+    from {
+        image = "tech.ineb:82/razvitie/apps/base/jemalloc-java-dataflow-base:123"
+//        auth {
+//            username = rootProject.ext.nexusUser
+//            password = rootProject.ext.nexusPassword
+//
+//        }
+    }
+    to {
+        image = "backtest-rest-api:0.1"
+//        auth {
+//            username = rootProject.ext.nexusUser
+//            password = rootProject.ext.nexusPassword
+//        }
+    }
+}
+
+

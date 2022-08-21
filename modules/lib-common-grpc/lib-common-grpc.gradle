@@ -1,0 +1,34 @@
+plugins {
+    id "com.google.protobuf" version "$protobuf"
+}
+
+dependencies {
+    implementation libraries.grpc_protobuf
+    implementation libraries.grpc_stub
+    implementation libraries.javax_annotation
+}
+
+protobuf {
+    protoc {
+        artifact = libraries.protobuf_protoc
+    }
+    plugins {
+        grpc {
+            artifact = libraries.grpc_gen
+        }
+    }
+    generateProtoTasks {
+        all()*.plugins {
+            grpc {}
+        }
+    }
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs 'build/generated/source/proto/main/grpc'
+            srcDirs 'build/generated/source/proto/main/java'
+        }
+    }
+}

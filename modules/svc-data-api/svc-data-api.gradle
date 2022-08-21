@@ -1,0 +1,84 @@
+buildscript {
+    ext {
+        gradleUploadPlugin = "2.3.1"
+    }
+    repositories {
+        mavenCentral()
+    }
+}
+
+plugins {
+    id 'org.springframework.boot' version "$bootVersion"
+    id 'io.spring.dependency-management' version "$dmVersion"
+    id 'java'
+    id 'com.google.cloud.tools.jib' version "$jibVersion"
+}
+
+//jooqModelator {
+//    jooqVersion = versions.jooq
+//    jooqEdition = 'OSS'
+//    jooqConfigPath = "$rootDir/modules/svc-load-data/src/main/resources/jooq/jooqConfiguration.xml"
+//    jooqOutputPath = "$buildDir/tmp/tech/ineb/metamodel"
+//    migrationEngine = 'LIQUIBASE'
+//    migrationsPaths = ["$rootDir/modules/svc-load-data/src/main/resources/db/changelog".toString()]
+//    dockerTag = 'debezium/postgres:11'
+//    dockerEnv = ['POSTGRES_DB=postgres', 'POSTGRES_USER=postgres', 'POSTGRES_PASSWORD=pass']
+//    delayMs = 500
+//    maxDurationMs = 150000
+//    dockerHostPort = 5432
+//    dockerContainerPort = 5432
+//}
+
+//jooq {
+//    version = versions.jooq
+//    edition = nu.studer.gradle.jooq.JooqEdition.OSS
+//}
+
+dependencies {
+    implementation project(':lib-common-entities')
+    implementation project(':lib-common-models')
+    implementation project(':lib-common-tcs')
+
+    implementation 'org.springframework.boot:spring-boot-starter-data-r2dbc'
+//    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    implementation libraries.mapstruct_core
+    implementation libraries.jooq
+    implementation 'org.liquibase:liquibase-core'
+
+    compileOnly libraries.lombok
+    annotationProcessor libraries.mapstruct_processor
+    annotationProcessor libraries.lombok
+
+    testCompileOnly libraries.lombok
+    testAnnotationProcessor libraries.lombok
+    testImplementation testLibraries.spring_test
+    testImplementation testLibraries.reactor_test
+    testImplementation testLibraries.junit
+    testImplementation testLibraries.mockito
+}
+
+test {
+    useJUnitPlatform()
+}
+
+//fixme: below
+jib {
+    allowInsecureRegistries = true
+    from {
+        image = "tech.ineb:82/razvitie/apps/base/jemalloc-java-dataflow-base:123"
+//        auth {
+//            username = rootProject.ext.nexusUser
+//            password = rootProject.ext.nexusPassword
+//
+//        }
+    }
+    to {
+        image = "backtest-rest-api:0.1"
+//        auth {
+//            username = rootProject.ext.nexusUser
+//            password = rootProject.ext.nexusPassword
+//        }
+    }
+}

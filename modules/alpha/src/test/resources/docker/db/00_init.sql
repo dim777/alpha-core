@@ -1,0 +1,7 @@
+CREATE USER app_usr WITH ENCRYPTED PASSWORD 'Qwe_123';
+CREATE DATABASE app_db;
+GRANT ALL PRIVILEGES ON DATABASE app_db TO app_usr;
+
+CREATE USER market_data_usr WITH ENCRYPTED PASSWORD 'md_pass';
+CREATE DATABASE market_data_db;
+GRANT ALL PRIVILEGES ON DATABASE market_data_db TO market_data_usr;

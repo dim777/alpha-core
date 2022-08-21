@@ -1,0 +1,137 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: teamcity
+  name: teamcity
+  namespace: dev-tools
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: teamcity
+  template:
+    metadata:
+      labels:
+        app: teamcity
+    spec:
+      initContainers:
+        - name: chown-tc-data-owner
+          image: busybox:1.34.1
+          command: [ "/bin/sh","-c" ]
+          args: [ "chown -R 1000:1000 /data/teamcity_server/datadir" ]
+          volumeMounts:
+            - name: tc-data-vol
+              mountPath: /data/teamcity_server/datadir
+      containers:
+        - image: jetbrains/teamcity-server:2021.2.3
+          imagePullPolicy: IfNotPresent
+          name: teamcity
+          env:
+            - name: TEAMCITY_SERVER_MEM_OPTS
+              value: "-Xmx2g -XX:MaxPermSize=270m -XX:ReservedCodeCacheSize=350m"
+          resources:
+            requests:
+              cpu: "0.25"
+              memory: "512M"
+            limits:
+              cpu: "0.5"
+              memory: "2304M"
+          ports:
+            - containerPort: 8111
+          volumeMounts:
+            - name: tc-data-vol
+              mountPath: /data/teamcity_server/datadir
+          securityContext:
+            runAsUser: 1000
+      volumes:
+        - name: tc-data-vol
+          persistentVolumeClaim:
+            claimName: pvc-tc
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-tc
+  namespace: dev-tools
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: do-block-storage
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: teamcity-build-agent
+  name: teamcity-build-agent
+  namespace: dev-tools
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: teamcity-build-agent
+  template:
+    metadata:
+      labels:
+        app: teamcity-build-agent
+    spec:
+      containers:
+        - name: teamcity-build-agent
+          image: jetbrains/teamcity-agent:2020.1.5
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: SERVER_URL
+              value: "http://teamcity:18111"
+            - name: DOCKER_IN_DOCKER
+              value: start
+          securityContext:
+            privileged: true
+            runAsUser: 0
+          resources:
+            requests:
+              cpu: "0.25"
+              memory: "256M"
+            limits:
+              cpu: "0.5"
+              memory: "2048M"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: teamcity
+  namespace: dev-tools
+spec:
+  ports:
+    - port: 18111
+      targetPort: 8111
+  selector:
+    app: teamcity
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: teamcity-ingress
+  namespace: dev-tools
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    kubernetes.io/ingress.class: "nginx"
+spec:
+  tls:
+    - hosts:
+        - teamcity.i-neb.net
+      secretName: teamcity-tls
+  rules:
+    - host: teamcity.i-neb.net
+      http:
+        paths:
+          - pathType: Prefix
+            path: /
+            backend:
+              service:
+                name: teamcity
+                port:
+                  number: 18111

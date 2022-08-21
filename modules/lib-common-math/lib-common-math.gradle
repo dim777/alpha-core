@@ -1,0 +1,45 @@
+buildscript {
+    ext {
+        gradleUploadPlugin = '2.3.1'
+    }
+    repositories {
+        mavenCentral()
+    }
+}
+
+plugins {
+    id 'com.google.cloud.tools.jib' version "$jibVersion"
+    id 'java'
+}
+
+dependencies {
+    implementation libraries.mapstruct_core
+    annotationProcessor libraries.mapstruct_processor
+
+    testImplementation testLibraries.junit
+    testImplementation testLibraries.mockito
+}
+
+test {
+    useJUnitPlatform()
+}
+
+//fixme: below
+jib {
+    allowInsecureRegistries = true
+    from {
+        image = "tech.ineb:82/razvitie/apps/base/jemalloc-java-dataflow-base:123"
+//        auth {
+//            username = rootProject.ext.nexusUser
+//            password = rootProject.ext.nexusPassword
+//
+//        }
+    }
+    to {
+        image = "backtest-rest-api:0.1"
+//        auth {
+//            username = rootProject.ext.nexusUser
+//            password = rootProject.ext.nexusPassword
+//        }
+    }
+}

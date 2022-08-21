@@ -1,0 +1,59 @@
+buildscript {
+    ext {
+        gradleUploadPlugin = '2.3.1'
+    }
+    repositories {
+        mavenCentral()
+    }
+}
+
+plugins {
+    id 'org.springframework.boot' version "$bootVersion"
+    id 'io.spring.dependency-management' version "$dmVersion"
+    id 'com.google.cloud.tools.jib' version "$jibVersion"
+    id 'java'
+}
+
+
+dependencies {
+    implementation project(':lib-common-tcs')
+    implementation project(':lib-common-grpc')
+    implementation project(':lib-common-models')
+    implementation 'org.springframework.boot:spring-boot-starter'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+//    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+    implementation libraries.s3
+    implementation libraries.gson
+    implementation libraries.mapstruct_core
+    implementation libraries.http_client
+    implementation libraries.grpc_netty
+    implementation libraries.grpc_protobuf
+    implementation libraries.grpc_stub
+    annotationProcessor libraries.mapstruct_processor
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+//fixme: below
+jib {
+    allowInsecureRegistries = true
+    from {
+        image = "tech.ineb:82/razvitie/apps/base/jemalloc-java-dataflow-base:123"
+//        auth {
+//            username = rootProject.ext.nexusUser
+//            password = rootProject.ext.nexusPassword
+//
+//        }
+    }
+    to {
+        image = "backtest-rest-api:0.1"
+//        auth {
+//            username = rootProject.ext.nexusUser
+//            password = rootProject.ext.nexusPassword
+//        }
+    }
+}

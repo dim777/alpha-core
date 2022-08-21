@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package tech.ineb.protogen;
+
+import "storage/QuotesRequest.proto";
+import "storage/QuotesResponse.proto";
+import "common/Messages.proto";
+
+option java_multiple_files = true;
+
+service QuotesService {
+  rpc getQuotesFile (QuotesRequest) returns (QuotesResponse) {
+  }
+}

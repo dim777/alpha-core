@@ -1,0 +1,28 @@
+server:
+  port: 8080
+
+spring:
+  liquibase:
+    change-log: classpath:db/changelog/databaseChangeLog.yml
+    liquibase-schema: public
+    contexts: "!local-test"
+    enabled: true
+
+http:
+  connectTimeout: 60000
+  readTimeout: 60000
+  logging:
+    maxBodyLength: 100000
+
+s3:
+  host: minio
+  port: 9000
+  bucket: md_files
+  accessKeyId: minio
+  secretAccessKey: pass1234
+
+market:
+  data:
+    tcs:
+      url: 'http://mock'
+      token: "testToken"

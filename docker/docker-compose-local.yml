@@ -1,0 +1,52 @@
+version: "3.7"
+
+services:
+  market-data-db:
+    image: registry.ineb.tech:81/tech/pg-ineb-dbg:0.0.1
+    networks:
+      - alpha_core
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - market_data:/var/lib/postgresql/data
+  minio:
+    image: minio/minio:RELEASE.2021-10-13T00-23-17Z.fips
+    networks:
+      - alpha_core
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: minio
+      MINIO_ROOT_PASSWORD: pass1234
+    command: server --console-address "0.0.0.0:9001" --compat /data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/ready"]
+      interval: 1m
+      timeout: 10s
+      retries: 15
+      start_period: 140s
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+        reservations:
+          cpus: '0.250'
+          memory: 256M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1g"
+    volumes:
+      - minio_data:/data
+
+volumes:
+  market_data:
+  minio_data:
+networks:
+  alpha_core:
+    name: alpha_core
+    attachable: true

@@ -1,0 +1,34 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: derokhin
+      comment: initial schema creation
+      changes:
+        - sqlFile:
+            path: sql/changelog-0.1.sql
+            relativeToChangelogFile: true
+  - changeSet:
+      id: 2
+      author: derokhin
+      comment: initial ddl
+      changes:
+        - sqlFile:
+            path: sql/changelog-0.2.sql
+            relativeToChangelogFile: true
+  - changeSet:
+      id: 3
+      author: derokhin
+      comment: add dynamic partitions
+      changes:
+        - sqlFile:
+            path: sql/changelog-0.3.sql
+            relativeToChangelogFile: true
+  - changeSet:
+      id: 3-test
+      author: derokhin
+      context: local-test
+      comment: test data
+      changes:
+        - sqlFile:
+            path: sql/changelog-0.3-test.sql
+            relativeToChangelogFile: true

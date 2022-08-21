@@ -1,0 +1,5 @@
+market:
+  data:
+    binance:
+      url: 'https://testnet.binance.vision'
+      api: WALU0sOPdAuombPi6OO3HPEH5INEqIcjhL9SAtuN7gcoTYv9iuOQMaxuZEUjOkYQ

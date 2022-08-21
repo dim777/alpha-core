@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration>
+    <jdbc>
+        <driver>org.postgresql.Driver</driver>
+        <url>jdbc:postgresql://localhost:5432/postgres?currentSchema=public</url>
+        <user>postgres</user>
+        <password>pass</password>
+    </jdbc>
+    <generator>
+        <database>
+            <name>org.jooq.meta.postgres.PostgresDatabase</name>
+            <inputSchema>md</inputSchema>
+            <recordVersionFields>version</recordVersionFields>
+            <forcedTypes>
+                <forcedType>
+                    <userType>org.json.JSONObject</userType>
+                    <binding>tech.ineb.lib.common.entities.utils.PostgresJSONJsonObjectBinding</binding>
+                    <includeExpression>.*</includeExpression>
+                    <includeTypes>.*json.*</includeTypes>
+                </forcedType>
+            </forcedTypes>
+        </database>
+        <target>
+            <packageName>tech.ineb.lib.common.entities.quotes.data</packageName>
+            <directory>/Users/d.erokhin/Documents/prj/alpha-core/modules/lib-common-entities/src/main/java</directory>
+        </target>
+        <generate>
+            <javaTimeTypes>true</javaTimeTypes>
+            <daos>true</daos>
+        </generate>
+    </generator>
+</configuration>

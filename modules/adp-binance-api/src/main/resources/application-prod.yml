@@ -1,0 +1,5 @@
+market:
+  data:
+    binance:
+      url: 'https://api.binance.com'
+      api: IbUsttFCuJkKm8GsL3mRigc9P9wtbKCD6Mwm2twFnh5ZNwrl8OsgHzf2G8KmoHKx

@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package tech.ineb.protogen;
+
+import "google/protobuf/wrappers.proto";
+import "common/Messages.proto";
+
+option java_multiple_files = true;
+
+message QuotesRequest {
+  google.protobuf.StringValue requestId = 1;
+  string securityCode = 2;
+  string timeFrame = 3;
+  int64 dateTime = 4;
+}

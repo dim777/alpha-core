@@ -1,0 +1,18 @@
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: echo-ingress
+spec:
+  rules:
+    - host: api.ineb.ru
+      http:
+        paths:
+          - backend:
+              serviceName: echo1
+              servicePort: 80
+    - host: api1.ineb.ru
+      http:
+        paths:
+          - backend:
+              serviceName: echo2
+              servicePort: 80

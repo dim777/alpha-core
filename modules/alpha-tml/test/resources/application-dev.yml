@@ -1,0 +1,24 @@
+debug: true
+spring:
+  datasource:
+    jdbcUrl: jdbc:h2:mem:test;MODE=PostgreSQL
+    driverClassName: org.postgresql.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    generate-ddl: true
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+
+        event.merge.entity_copy_observer: allow
+        jdbc.lob.non_contextual_creation: true
+        enable_lazy_load_no_trans: true
+
+  hibernateProp.put("hibernate.dialect", "org.hibernate.dialect.H2Dialect");
+  hibernateProp.put("hibernate.hbm2ddl.auto", "create-drop");
+  hibernateProp.put("hibernate.show_sql", true);
+  hibernateProp.put("hibernate.max_fetch_depth", 3);
+  hibernateProp.put("hibernate.jdbc.batch_size", 10);
+  hibernateProp.put("hibernate.jdbc.fetch_size", 50);

@@ -1,0 +1,9 @@
+plugins {
+    id 'java-library'
+}
+
+dependencies {
+    implementation libraries.jacksonDatatypeJsonOrg
+    implementation libraries.jacksonDatatypeJsr310
+    implementation libraries.jooq
+}

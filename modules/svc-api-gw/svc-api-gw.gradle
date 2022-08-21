@@ -1,0 +1,20 @@
+plugins {
+    id 'org.springframework.boot' version "$bootVersion"
+    id 'io.spring.dependency-management' version "$dmVersion"
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.boot:spring-boot-starter-parent:$bootVersion"
+        mavenBom "com.graphql-java-kickstart:graphql-spring-boot-dependencies:$graphqlBootVersion"
+    }
+}
+
+dependencies {
+    implementation project(':lib-common-models')
+    implementation 'org.springframework.boot:spring-boot-starter-data-r2dbc'
+//    implementation "org.springframework.boot:spring-boot-starter-webflux"
+    implementation 'org.liquibase:liquibase-core'
+    implementation libraries.jooq
+    implementation "com.graphql-java-kickstart:graphql-spring-boot-starter:$graphqlBootVersion"
+}

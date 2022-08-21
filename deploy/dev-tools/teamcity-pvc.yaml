@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: teamcity-pvc
+  namespace: dev-tools
+spec:
+  storageClassName: do-block-storage
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  selector:
+    matchLabels:
+      tier: "tier1"

@@ -1,0 +1,39 @@
+type Query {
+    hello: String
+    allSecurities: [Security!]!
+}
+
+type Mutation {
+    createSecurity(code: String!, name: String): Security!
+    updateSecurity(id: ID!, code: String!, name: String): Security!
+    deleteSecurity(id: ID!): Security!
+}
+
+type Subscription {
+    hello: Int
+    quotes(task: LoadTask!): [Quote!]!
+}
+
+type Security {
+    id: ID!
+    code: String!
+    name: String
+}
+
+type Quote {
+    id: ID!
+    open: Float!
+    high: Float!
+    low: Float!
+    close: Float!
+    time: String!
+    timeFrame: String!
+    security: Security!
+}
+
+input LoadTask {
+    id: ID!
+    securityCode: String!
+    timeFrame: String!
+    dateTime: String!
+}

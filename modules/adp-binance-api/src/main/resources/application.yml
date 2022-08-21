@@ -1,0 +1,20 @@
+market:
+  data:
+    binance:
+      url: 'https://url'
+      api: abcd
+  securities:
+    -
+      name: "BTC-USDT-UAH"
+      base: BTC
+      codes:
+        - BTC|USDT
+        - USDT|UAH
+        - BTC|UAH
+    -
+      name: "BTC-RUB-ETH"
+      base: BTC
+      codes:
+        - BTC|RUB
+        - ETH|RUB
+        - ETH|BTC

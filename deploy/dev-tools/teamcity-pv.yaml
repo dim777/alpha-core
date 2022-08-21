@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+#  labels:
+#    tier: "tier1"
+  name: pv001
+  namespace: dev-tools
+spec:
+  storageClassName: do-block-storage
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Recycle

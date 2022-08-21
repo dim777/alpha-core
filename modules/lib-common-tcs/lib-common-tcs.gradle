@@ -1,0 +1,55 @@
+buildscript {
+    ext {
+        gradleUploadPlugin = '2.3.1'
+    }
+    repositories {
+        mavenCentral()
+        maven { url "https://plugins.gradle.org/m2/" }
+    }
+}
+
+
+plugins {
+    id 'java'
+    id "org.openapi.generator" version "$openApi"
+}
+
+
+
+dependencies {
+    implementation libraries.swagger2
+    implementation libraries.swagger_ui
+    implementation libraries.gson
+    implementation libraries.guava
+    implementation libraries.javax_annotation
+    implementation libraries.jooq
+    implementation libraries.okhttp3_client
+    implementation libraries.okhttp3_logging
+    implementation libraries.gson_fire
+}
+
+tasks.build.dependsOn(tasks.openApiGenerate)
+
+openApiValidate {
+    inputSpec = "$rootDir/modules/lib-common-tcs/src/main/resources/tcs/1.0.0/swagger.yaml".toString()
+}
+
+openApiGenerate {
+    generatorName = "java"
+    inputSpec = "$rootDir/modules/lib-common-tcs/src/main/resources/tcs/1.0.0/swagger.yaml".toString()
+    outputDir = "$buildDir/generated".toString()
+    apiPackage = "tech.ineb.alpha.lib.common.tcs.client.api"
+    modelPackage = "tech.ineb.alpha.lib.common.tcs.model"
+    invokerPackage = "tech.ineb.alpha.lib.common.tcs.invoker"
+    configOptions = [dateLibrary: "java8"]
+}
+
+sourceSets {
+    main {
+        java.srcDirs += ["${buildDir}/generated/src/main/java/"]
+    }
+}
+
+compileJava {
+    dependsOn tasks.openApiGenerate
+}

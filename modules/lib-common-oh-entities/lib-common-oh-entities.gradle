@@ -1,0 +1,79 @@
+plugins {
+    id 'java'
+
+    // there are several issues with JMH plugin:
+    // 1. gradle daemons should be stopped before, so execute .\gradlew.bat --stop before
+    // 2. jmh plugin is unable to compile code incrementally, so execute .\gradlew.bat clean before
+    // 3. jmh plugin has huge classpage, to change GRADLE_HOME folder to short path, like C:\g\
+    id "me.champeau.jmh" version "0.6.6"
+}
+
+group 'ru.xegex'
+version '1.0-SNAPSHOT'
+ext.moduleName = 'ru.xegex.commons'
+
+sourceCompatibility = 11
+targetCompatibility = 11
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation group: 'io.github.classgraph', name: 'classgraph', version: '4.8.4'
+    testAnnotationProcessor group: 'org.projectlombok', name: 'lombok', version: '1.18.6'
+    testCompileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.6'
+    testImplementation group: 'junit', name: 'junit', version: '4.12'
+}
+
+compileJava {
+    inputs.property("moduleName", moduleName)
+    doFirst {
+        options.compilerArgs.addAll([
+                '--module-path', classpath.asPath,
+                '--add-exports', 'java.base/jdk.internal.misc=ru.xegex.commons'
+        ])
+        classpath = files()
+    }
+}
+
+compileTestJava {
+    inputs.property("moduleName", moduleName)
+    doFirst {
+        options.compilerArgs = [
+                '--module-path', classpath.asPath,
+                '--add-exports', 'java.base/jdk.internal.misc=ru.xegex.commons',
+                '--add-opens', 'java.base/jdk.internal.misc=ru.xegex.commons, ALL-UNNAMED',
+                '--add-modules', 'junit',
+                '--add-modules', 'lombok',
+                '--add-reads', "$moduleName=junit,lombok",
+                '--patch-module', "$moduleName=" + files(sourceSets.test.java.srcDirs).asPath,
+        ]
+        classpath = files()
+    }
+}
+
+test {
+    inputs.property("moduleName", moduleName)
+    doFirst {
+        jvmArgs = [
+                '--module-path', classpath.asPath,
+                '--add-exports', 'java.base/jdk.internal.misc=ru.xegex.commons',
+                '--add-opens', 'java.base/jdk.internal.misc=ru.xegex.commons, ALL-UNNAMED',
+                '--add-modules', 'ALL-MODULE-PATH',
+                '--add-reads', "$moduleName=junit",
+                '--patch-module', "$moduleName=" + files(sourceSets.test.java.outputDir).asPath,
+        ]
+        classpath = files()
+    }
+}
+
+compileJmhJava {
+    options.compilerArgs.addAll([
+            "--add-exports", "java.base/jdk.internal.misc=ALL-UNNAMED"
+    ])
+}
+
+jmh {
+    jvmArgsAppend = ["--add-exports", "java.base/jdk.internal.misc=ALL-UNNAMED"]
+}

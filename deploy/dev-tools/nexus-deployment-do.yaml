@@ -1,0 +1,102 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: nexus
+  name: nexus
+  namespace: dev-tools
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nexus
+  template:
+    metadata:
+      labels:
+        app: nexus
+    spec:
+      initContainers:
+        - name: chown-nexusdata-owner-to-nexus
+          image: busybox:1.34.1
+          command: [ "/bin/sh","-c" ]
+          args: [ "chown -R 200:200 /nexus-data" ]
+          volumeMounts:
+            - name: nexus-data-vol
+              mountPath: /nexus-data
+      containers:
+        - image: sonatype/nexus3:3.38.0
+          imagePullPolicy: IfNotPresent
+          name: nexus
+          env:
+            - name: NEXUS_SEARCH_INDEX_REBUILD_ON_STARTUP
+              value: "true"
+            - name: INSTALL4J_ADD_VM_PARAMS
+              value: "-Xms1g -Xmx2g -XX:MaxDirectMemorySize=2g -Djava.util.prefs.userRoot=${NEXUS_DATA}/javaprefs"
+          resources:
+            requests:
+              cpu: "0.25"
+              memory: "512M"
+            limits:
+              cpu: "0.5"
+              memory: "2304M"
+          ports:
+            - containerPort: 8081
+          volumeMounts:
+            - name: nexus-data-vol
+              mountPath: /nexus-data
+          securityContext:
+            runAsUser: 200
+      volumes:
+        - name: nexus-data-vol
+          persistentVolumeClaim:
+            claimName: pvc-nexus
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-nexus
+  namespace: dev-tools
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: do-block-storage
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nexus
+  namespace: dev-tools
+spec:
+  ports:
+    - port: 18081
+      targetPort: 8081
+  selector:
+    app: nexus
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: nexus-ingress
+  namespace: dev-tools
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    kubernetes.io/ingress.class: "nginx"
+spec:
+  tls:
+    - hosts:
+        - nexus.i-neb.net
+      secretName: nexus-tls
+  rules:
+    - host: nexus.i-neb.net
+      http:
+        paths:
+          - pathType: Prefix
+            path: /
+            backend:
+              service:
+                name: nexus
+                port:
+                  number: 18081

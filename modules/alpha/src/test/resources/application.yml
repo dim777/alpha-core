@@ -1,0 +1,59 @@
+spring:
+  main:
+    web-application-type: none
+  datasource:
+    username: postgres
+    password: Qwe123
+    driverClassName: org.postgresql.Driver
+    jdbcUrl: jdbc:postgresql://postgres:15432/postgres?currentSchema=test
+    hikari:
+      minimumIdle: 5
+      maximumPoolSize: 20
+      idleTimeout: 30000
+      poolName: PgHikariCP
+      maxLifetime: 2000000
+      connectionTimeout: 60000
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    generate-ddl: false
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        event.merge.entity_copy_observer: allow
+        jdbc.lob.non_contextual_creation: true
+        enable_lazy_load_no_trans: true
+
+app:
+  transactionsFile: "r:/trans.tri"
+  zookeeper: "zookeeper:2181"
+  secureKafka: false
+  kafka:
+    applicationId: "alpha-streams-app"
+    bootstrapServers: "kafka:9092"
+    cacheMaxBytesBuffering: 10240
+    commitIntervalMs: 1000
+    metadataMaxAge: 1000
+    autoOffsetReset: "earliest"
+    schemaRegistryUrl: "http://localhost:8081"
+    restEndpointHostname: "localhost"
+    restEndpointPort: 8090
+    stateDir: "/tmp/kafka-streams"
+  streams:
+    ext.limits.topic: "postgres.als.limit"
+    int.limits.topic: "int.limits"
+    store.enrichedLimits.topic: "store.limits_enriched"
+
+debezium:
+  connect:
+    host: debezium-connect
+    restPort: 8084
+  connectorPg:
+    name: moex-connector
+    host: postgres
+    port: 15432
+    user: postgres
+    pass: Qwe123!
+    database: market_data_db
+debug: true
